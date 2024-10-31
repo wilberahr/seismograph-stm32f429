@@ -1,0 +1,3 @@
+[submodule "seismograph/lib/libopencm3-examples"]
+	path = seismograph/lib/libopencm3-examples
+	url = https://github.com/libopencm3/libopencm3-examples.git
