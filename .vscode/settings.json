@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "spi.h": "c",
+        "gpio.h": "c",
+        "rcc.h": "c"
+    }
+}
