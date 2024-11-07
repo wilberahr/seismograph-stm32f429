@@ -145,7 +145,7 @@ LDLIBS		+= -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 .SECONDEXPANSION:
 .SECONDARY:
 
-all: elf hex bin
+all: elf bin hex srec list
 
 elf: $(BINARY).elf
 bin: $(BINARY).bin
@@ -214,6 +214,10 @@ print-%:
 %.o: %.cpp
 	@#printf "  CXX     $(*).cpp\n"
 	$(Q)$(CXX) $(TGT_CXXFLAGS) $(CXXFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).cpp
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)%.c
+	@#printf "  CC      $(*).c\n"
+	$(Q)$(CC) $(TGT_CFLAGS) $(CFLAGS) $(TGT_CPPFLAGS) $(CPPFLAGS) -o $(*).o -c $(*).c
 
 clean:
 	@#printf "  CLEAN\n"
