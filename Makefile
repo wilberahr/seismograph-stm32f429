@@ -7,6 +7,9 @@ SRC_DIR = scr
 INC_DIR = include
 LIB_DIR = lib
 
+#Incluir headers en el directorio include
+DEFS += -I$(INC_DIR)/include
+
 OBJS = $(OBJ_DIR)/clock.o $(OBJ_DIR)/console.o
 
 # Se agregan la direccion del directorio donde estan los ejemplos
@@ -17,8 +20,8 @@ OBJS = $(OBJ_DIR)/clock.o $(OBJ_DIR)/console.o
 
 # Se define la variante del modelo de stm32f429i
 #MODEL = stm32f429i-discovery
-OPENCM3_DIR = $(LIB_DIR)/libopencm3-examples/libopencm3
-
+#OPENCM3_DIR = $(LIB_DIR)/libopencm3-examples/libopencm3
+OPENCM3_DIR = ./libopencm3
 #EXAMPLES_NAME = lcd-serial spi
 # TODO: definir los ejemplos a utilizar
 #EXAMPLES = $(EXAMPLES_DIR)/$(BOARD_NAME)/$(MODEL)/$(EXAMPLES_NAME)
