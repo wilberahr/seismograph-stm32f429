@@ -323,6 +323,40 @@ print_decimal(int num)
 
 char *axes[] = { "X: ", "Y: ", "Z: " };
 
+void spi_init(void){
+	rcc_periph_clock_enable(RCC_SPI5);
+
+	rcc_periph_clock_enable(RCC_GPIOC);
+	rcc_periph_clock_enable(RCC_GPIOF);
+
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
+	gpio_set(GPIOC, GPIO1);
+
+	gpio_mode_setup(GPIOF, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO7 | GPIO8 | GPIO9);   
+	gpio_set_af(GPIOF, GPIO_AF5, GPIO7 | GPIO8 | GPIO9);
+
+	/*Configuracion correcta de SPI (faltante en el ejemplo spi-mems.c) */
+	spi_set_master_mode(SPI5);
+	spi_set_baudrate_prescaler(SPI5, SPI_CR1_BR_FPCLK_DIV_64);
+	spi_set_clock_polarity_0(SPI5);
+	spi_set_clock_phase_0(SPI5);
+	spi_set_full_duplex_mode(SPI5);
+	spi_set_unidirectional_mode(SPI5);
+	spi_enable_software_slave_management(SPI5);
+	spi_send_msb_first(SPI5);
+	spi_set_nss_high(SPI5);
+	SPI_I2SCFGR(SPI5) &= ~SPI_I2SCFGR_I2SMOD;
+	spi_enable(SPI5);
+
+
+	/*GPIOG clock habilitado. */
+	rcc_periph_clock_enable(RCC_GPIOG);
+
+	/*GPIO13 configurado (en GPIO port G) como 'output push-pull'.*/
+	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13 | GPIO14);
+
+}
+
 /***
  * Main, contiene declaraciones de los tres archivos
  */
