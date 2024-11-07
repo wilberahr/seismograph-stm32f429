@@ -364,7 +364,7 @@ int main(void)
 {
 
 	/*Codigo tomado de funcion main() de lcd-serial.c */
-	int p1, p2, p3;
+//	int p1, p2, p3;
 	clock_setup();
 	console_setup(115200);
 	sdram_init();
@@ -382,12 +382,12 @@ int main(void)
 	gfx_fillCircle(220, 250, 10, LCD_BLUE);
 	gfx_setTextSize(2);
 	gfx_setCursor(15, 25);
-	gfx_puts("STM32F4-DISCO");
+	gfx_puts("STM32F4-Seismograph");
 	gfx_setTextSize(1);
 	gfx_setCursor(15, 49);
-	gfx_puts("Simple example to put some");
+	gfx_puts("IE0624");
 	gfx_setCursor(15, 60);
-	gfx_puts("stuff on the LCD screen.");
+	gfx_puts("Lab de Microcontroladores");
 	lcd_show_frame();
 	console_puts("Now it has a bit of structured graphics.\n");
 	console_puts("Press a key for some simple animation.\n");
@@ -395,27 +395,27 @@ int main(void)
 	/*	(void) console_getc(1); */
 	gfx_setTextColor(LCD_YELLOW, LCD_BLACK);
 	gfx_setTextSize(3);
-	p1 = 0;
-	p2 = 45;
-	p3 = 90;
+//	p1 = 0;
+//	p2 = 45;
+//	p3 = 90;
 	while (1) {
 		gfx_fillScreen(LCD_BLACK);
 		gfx_setCursor(15, 36);
-		gfx_puts("PLANETS!");
-		gfx_fillCircle(120, 160, 40, LCD_YELLOW);
-		gfx_drawCircle(120, 160, 55, LCD_GREY);
-		gfx_drawCircle(120, 160, 75, LCD_GREY);
-		gfx_drawCircle(120, 160, 100, LCD_GREY);
+		gfx_puts("Seismograph");
+	//	gfx_fillCircle(120, 160, 40, LCD_YELLOW);
+	//	gfx_drawCircle(120, 160, 55, LCD_GREY);
+	//	gfx_drawCircle(120, 160, 75, LCD_GREY);
+	//	gfx_drawCircle(120, 160, 100, LCD_GREY);
 
-		gfx_fillCircle(120 + (sin(d2r(p1)) * 55),
-			       160 + (cos(d2r(p1)) * 55), 5, LCD_RED);
-		gfx_fillCircle(120 + (sin(d2r(p2)) * 75),
-			       160 + (cos(d2r(p2)) * 75), 10, LCD_WHITE);
-		gfx_fillCircle(120 + (sin(d2r(p3)) * 100),
-			       160 + (cos(d2r(p3)) * 100), 8, LCD_BLUE);
-		p1 = (p1 + 3) % 360;
-		p2 = (p2 + 2) % 360;
-		p3 = (p3 + 1) % 360;
+	//	gfx_fillCircle(120 + (sin(d2r(p1)) * 55),
+	//		       160 + (cos(d2r(p1)) * 55), 5, LCD_RED);
+	//	gfx_fillCircle(120 + (sin(d2r(p2)) * 75),
+	//		       160 + (cos(d2r(p2)) * 75), 10, LCD_WHITE);
+	//	gfx_fillCircle(120 + (sin(d2r(p3)) * 100),
+	//		       160 + (cos(d2r(p3)) * 100), 8, LCD_BLUE);
+	//	p1 = (p1 + 3) % 360;
+	//	p2 = (p2 + 2) % 360;
+	//	p3 = (p3 + 1) % 360;
 		lcd_show_frame();
 
 	}
