@@ -46,20 +46,7 @@
 
 int _write(int file, char *ptr, int len);
 
-static void clock_setup(void)
-{
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
-	/* Enable GPIOD clock for LED & USARTs. */
-	rcc_periph_clock_enable(RCC_GPIOG);
-	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* Enable clocks for USART2 and dac */
-	rcc_periph_clock_enable(RCC_USART1);
-	rcc_periph_clock_enable(RCC_DAC);
-
-	/* And ADC*/
-	rcc_periph_clock_enable(RCC_ADC1);
-}
 
 static void usart_setup(void)
 {
