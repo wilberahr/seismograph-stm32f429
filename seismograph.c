@@ -362,6 +362,13 @@ void spi_init(void){
  */
 int main(void)
 {
+	/*Codigo tomado de funcion main() de spi-mems.c*/
+	int16_t vecs[3];
+	int16_t baseline[3];
+	int tmp, i;
+	int count;
+	uint32_t temp;
+	int cursor = 36;
 
 	/*Codigo tomado de funcion main() de lcd-serial.c */
 //	int p1, p2, p3;
@@ -398,7 +405,69 @@ int main(void)
 //	p1 = 0;
 //	p2 = 45;
 //	p3 = 90;
+
+	/*Codigo tomado de funcion main() de spi-mems.c*/
+	baseline[0] = 0;
+	baseline[1] = 0;
+	baseline[2] = 0;
+	console_puts("MEMS demo (new version):\n");
+	console_puts("Press a key to read the registers\n");
+	console_getc(1);
+	tmp = read_reg(0xf);
+	if (tmp != 0xD4) {
+		console_puts("Maybe this isn't a Gyroscope.\n");
+	}
+	/*
+	 * These parameters are sort of random, clearly I need
+	 * set something. Based on the app note I reset the 'baseline'
+	 * values after 100 samples. But don't see a lot of change
+	 * when I move the board around. Z doesn't move at all but the
+	 * temperature reading is correct and the ID code returned is
+	 * as expected so the SPI code at least is working.
+	 */
+	write_reg(0x20, 0xcf);  /* Normal mode */
+	write_reg(0x21, 0x07);  /* standard filters */
+	write_reg(0x23, 0xb0);  /* 250 dps */
+	tmp = (int) read_reg(0x26);
+	console_puts("Temperature: ");
+	print_decimal(tmp);
+	console_puts(" C\n");
+
 	while (1) {
+		
+		/*Codigo tomado de funcion main() de spi-mems.c*/
+		tmp = read_xyz(vecs);
+		for (i = 0; i < 3; i++) {
+			int pad;
+			console_puts(axes[i]);
+			tmp = vecs[i] - baseline[i];
+			pad = print_decimal(tmp);
+			pad = 15 - pad;
+			while (pad--) {
+				console_puts(" ");
+			}
+			
+			gfx_setCursor(15,cursor);
+			gfx_puts(lcd_out);
+			sprintf(lcd_out, "%s", axes[i]);
+			sprintf(int_to_str, "%d", vecs[i]);
+			strcat(lcd_out, int_to_str);
+			cursor = cursor + 54; 
+		}
+
+		cursor = 36;
+		console_putc('\r');
+		if (count == 100) {
+			baseline[0] = vecs[0];
+			baseline[1] = vecs[1];
+			baseline[2] = vecs[2];
+		} else {
+			count++;
+		}
+		msleep(100);
+		
+		temp = read_reg(0x26);
+
 		gfx_fillScreen(LCD_BLACK);
 		gfx_setCursor(15, 36);
 		gfx_puts("Seismograph");
@@ -416,6 +485,16 @@ int main(void)
 	//	p1 = (p1 + 3) % 360;
 	//	p2 = (p2 + 2) % 360;
 	//	p3 = (p3 + 1) % 360;
+
+		gfx_setCursor(15, 144);
+		gfx_puts(lcd_out);
+
+		sprintf(lcd_out, "%s", "Temperature:");
+		sprintf(int_to_str, "%d", temp);
+		strcat(lcd_out, int_to_str);
+
+		gfx_setCursor(15, 198);
+		gfx_puts(lcd_out);
 		lcd_show_frame();
 
 	}
