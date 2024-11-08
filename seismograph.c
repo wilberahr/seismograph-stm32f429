@@ -33,6 +33,20 @@
 #include "lcd-spi.h"
 #include "gfx.h"
 
+#define MEMS_RNW			(1 << 7)  
+#define MEMS_MNS			(1 << 6) 
+#define MEMS_WHO_AM_I		0x0F
+#define MEMS_OUT_TEMP		0x26
+#define MEMS_STATUS_REG		0x27
+#define MEMS_CTRL_REG1		0x20
+#define MEMS_CTRL_REG1_PD	(1 << 3)
+#define MEMS_CTRL_REG1_XEN	(1 << 1)
+#define MEMS_CTRL_REG1_YEN	(1 << 0)
+#define MEMS_CTRL_REG1_ZEN	(1 << 2)
+#define MEMS_CTRL_REG1_BW_SHIFT	4
+#define MEMS_CTRL_REG4		0x23
+#define MEMS_CTRL_REG4_FS_SHIFT	4
+
 ////////////////////////////////////////////////////////////////
 /**
  * adc-dac-printf.c
@@ -345,7 +359,6 @@ void spi_init(void){
 	spi_enable_software_slave_management(SPI5);
 	spi_send_msb_first(SPI5);
 	spi_set_nss_high(SPI5);
-	SPI_I2SCFGR(SPI5) &= ~SPI_I2SCFGR_I2SMOD;
 	spi_enable(SPI5);
 
 
@@ -355,6 +368,21 @@ void spi_init(void){
 	/*GPIO13 configurado (en GPIO port G) como 'output push-pull'.*/
 	gpio_mode_setup(GPIOG, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13 | GPIO14);
 
+    gpio_clear(GPIOC, GPIO1);
+	spi_send(SPI5, MEMS_CTRL_REG1); 
+	spi_read(SPI5);
+	spi_send(SPI5, MEMS_CTRL_REG1_PD | MEMS_CTRL_REG1_XEN |
+			MEMS_CTRL_REG1_YEN | MEMS_CTRL_REG1_ZEN |
+			(3 << MEMS_CTRL_REG1_BW_SHIFT));
+	spi_read(SPI5);
+	gpio_set(GPIOC, GPIO1); 
+
+    gpio_clear(GPIOC, GPIO1);
+	spi_send(SPI5, MEMS_CTRL_REG4);
+	spi_read(SPI5);
+	spi_send(SPI5, (1 << MEMS_CTRL_REG4_FS_SHIFT));
+	spi_read(SPI5);
+	gpio_set(GPIOC, GPIO1);
 }
 
 /***
@@ -372,12 +400,13 @@ int main(void)
 	int tmp, i;
 	int count = 0;
 	uint32_t temp;
-	int cursor = 36;
+//	int cursor = 36;
 
 	/*Codigo tomado de funcion main() de lcd-serial.c */
 //	int p1, p2, p3;
 	clock_setup();
 	console_setup(115200);
+	spi_init();
 	sdram_init();
 	lcd_spi_init();
 
@@ -406,22 +435,22 @@ int main(void)
 	msleep(2000);
 	/*	(void) console_getc(1); */
 	gfx_setTextColor(LCD_YELLOW, LCD_BLACK);
-	gfx_setTextSize(3);
+	gfx_setTextSize(1);
 //	p1 = 0;
 //	p2 = 45;
 //	p3 = 90;
-	spi_init();
+
 	/*Codigo tomado de funcion main() de spi-mems.c*/
 	baseline[0] = 0;
 	baseline[1] = 0;
 	baseline[2] = 0;
-	console_puts("MEMS demo (new version):\n");
+/*	console_puts("MEMS demo (new version):\n");
 	console_puts("Press a key to read the registers\n");
 	console_getc(1);
 	tmp = read_reg(0xf);
 	if (tmp != 0xD4) {
-		console_puts("Maybe this isn't a Gyroscope.\n");
-	}
+		console_puts("Maybe this isn't a MEMSoscope.\n");
+	}*/
 	/*
 	 * These parameters are sort of random, clearly I need
 	 * set something. Based on the app note I reset the 'baseline'
@@ -430,38 +459,38 @@ int main(void)
 	 * temperature reading is correct and the ID code returned is
 	 * as expected so the SPI code at least is working.
 	 */
-	write_reg(0x20, 0xcf);  /* Normal mode */
-	write_reg(0x21, 0x07);  /* standard filters */
-	write_reg(0x23, 0xb0);  /* 250 dps */
+/*	write_reg(0x20, 0xcf);  // Normal mode 
+	write_reg(0x21, 0x07);  // standard filters 
+	write_reg(0x23, 0xb0);  // 250 dps 
 	tmp = (int) read_reg(0x26);
 	console_puts("Temperature: ");
 	print_decimal(tmp);
 	console_puts(" C\n");
-
+*/
 	while (1) {
 
 		//Codigo tomado de funcion main() de spi-mems.c
 		tmp = read_xyz(vecs);
 		for (i = 0; i < 3; i++) {
 			int pad;
-			console_puts(axes[i]);
+		//	console_puts(axes[i]);
 			tmp = vecs[i] - baseline[i];
 			pad = print_decimal(tmp);
 			pad = 15 - pad;
-			while (pad--) {
-				console_puts(" ");
-			}
-			
+		//	while (pad--) {
+		//		console_puts(" ");
+		//	}
+/*			
 			gfx_setCursor(15,cursor);
 			gfx_puts(lcd_out);
 			sprintf(lcd_out, "%s", axes[i]);
 			sprintf(int_to_str, "%d", vecs[i]);
 			strcat(lcd_out, int_to_str);
-			cursor = cursor + 54; 
+			cursor = cursor + 54;*/ 
 		}
 
-		cursor = 36;
-		console_putc('\r');
+//		cursor = 36;
+//		console_putc('\r');
 		if (count == 100) {
 			baseline[0] = vecs[0];
 			baseline[1] = vecs[1];
@@ -473,9 +502,9 @@ int main(void)
 		
 		temp = read_reg(0x26);
 
-		gfx_fillScreen(LCD_BLACK);
-		gfx_setCursor(15, 36);
-		gfx_puts("Seismograph");
+	//	gfx_fillScreen(LCD_BLACK);
+	//	gfx_setCursor(15, 36);
+	//	gfx_puts("Seismograph");
 	//	gfx_fillCircle(120, 160, 40, LCD_YELLOW);
 	//	gfx_drawCircle(120, 160, 55, LCD_GREY);
 	//	gfx_drawCircle(120, 160, 75, LCD_GREY);
@@ -491,15 +520,37 @@ int main(void)
 	//	p2 = (p2 + 2) % 360;
 	//	p3 = (p3 + 1) % 360;
 
-		gfx_setCursor(15, 144);
+		gfx_fillScreen(LCD_BLACK);
+		gfx_setCursor(15, 36);
+		gfx_puts("Seismograph");
+		
+		
+		
+		sprintf(lcd_out, "%s", axes[0]);
+		sprintf(int_to_str, "%d", vecs[0]);
+		strcat(lcd_out, int_to_str);
+		gfx_setCursor(15,90);
+		gfx_puts(lcd_out);
+
+
+		sprintf(lcd_out, "%s", axes[1]);
+		sprintf(int_to_str, "%d", vecs[1]);
+		strcat(lcd_out, int_to_str);
+		gfx_setCursor(15,144);
+		gfx_puts(lcd_out);
+
+		sprintf(lcd_out, "%s", axes[2]);
+		sprintf(int_to_str, "%d", vecs[2]);
+		strcat(lcd_out, int_to_str);
+		gfx_setCursor(15,198);
 		gfx_puts(lcd_out);
 
 		sprintf(lcd_out, "%s", "Temperature:");
 		sprintf(int_to_str, "%d", temp);
 		strcat(lcd_out, int_to_str);
-
-		gfx_setCursor(15, 198);
+		gfx_setCursor(15, 232);
 		gfx_puts(lcd_out);
+		
 		lcd_show_frame();
 
 	}
