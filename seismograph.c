@@ -38,34 +38,34 @@
  * adc-dac-printf.c
  */
 
-#define LED_DISCO_GREEN_PORT GPIOG
-#define LED_DISCO_GREEN_PIN GPIO13
+//#define LED_DISCO_GREEN_PORT GPIOG
+//#define LED_DISCO_GREEN_PIN GPIO13
 
-#define USART_CONSOLE USART1
-
-
-int _write(int file, char *ptr, int len);
+//#define USART_CONSOLE USART1
 
 
+//int _write(int file, char *ptr, int len);
 
-static void usart_setup(void)
-{
+
+
+//static void usart_setup(void)
+//{
 	/* Setup GPIO pins for USART1 transmit. */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
+//	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
 
 	/* Setup USART1 TX pin as alternate function. */
-	gpio_set_af(GPIOA, GPIO_AF7, GPIO9);
-
+//	gpio_set_af(GPIOA, GPIO_AF7, GPIO9);
+/*
 	usart_set_baudrate(USART_CONSOLE, 115200);
 	usart_set_databits(USART_CONSOLE, 8);
 	usart_set_stopbits(USART_CONSOLE, USART_STOPBITS_1);
 	usart_set_mode(USART_CONSOLE, USART_MODE_TX);
 	usart_set_parity(USART_CONSOLE, USART_PARITY_NONE);
 	usart_set_flow_control(USART_CONSOLE, USART_FLOWCONTROL_NONE);
-
+*/
 	/* Finally enable the USART. */
-	usart_enable(USART_CONSOLE);
-}
+//	usart_enable(USART_CONSOLE);
+//}
 
 /**
  * Use USART_CONSOLE as a console.
@@ -75,36 +75,36 @@ static void usart_setup(void)
  * @param len
  * @return
  */
-int _write(int file, char *ptr, int len)
-{
-	int i;
+//int _write(int file, char *ptr, int len)
+//{
+//	int i;
 
-	if (file == STDOUT_FILENO || file == STDERR_FILENO) {
-		for (i = 0; i < len; i++) {
-			if (ptr[i] == '\n') {
-				usart_send_blocking(USART_CONSOLE, '\r');
-			}
-			usart_send_blocking(USART_CONSOLE, ptr[i]);
-		}
-		return i;
-	}
-	errno = EIO;
-	return -1;
-}
+//	if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+//		for (i = 0; i < len; i++) {
+//			if (ptr[i] == '\n') {
+//				usart_send_blocking(USART_CONSOLE, '\r');
+//			}
+//			usart_send_blocking(USART_CONSOLE, ptr[i]);
+//		}
+//		return i;
+//	}
+//	errno = EIO;
+//	return -1;
+//}
 
-static void adc_setup(void)
-{
-	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
-	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
-
-	adc_power_off(ADC1);
-	adc_disable_scan_mode(ADC1);
-	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC);
-
-	adc_power_on(ADC1);
-
-}
-
+//static void adc_setup(void)
+//{
+//	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0);
+//	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1);
+//
+//	adc_power_off(ADC1);
+//	adc_disable_scan_mode(ADC1);
+//	adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_3CYC);
+//
+//	adc_power_on(ADC1);
+//
+//}
+/*
 static void dac_setup(void)
 {
 	gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO5);
@@ -124,7 +124,7 @@ static uint16_t read_adc_naiive(uint8_t channel)
 	uint16_t reg16 = adc_read_regular(ADC1);
 	return reg16;
 }
-
+*/
 ////////////////////////////////////////////////////////////////
 /**
  * lcd-serial.c
@@ -362,11 +362,15 @@ void spi_init(void){
  */
 int main(void)
 {
+	/* Adicion de cadena de caracteres para desplegar en pantalla LCD */
+	char int_to_str[7];
+	char lcd_out[3];
+	
 	/*Codigo tomado de funcion main() de spi-mems.c*/
 	int16_t vecs[3];
 	int16_t baseline[3];
 	int tmp, i;
-	int count;
+	int count = 0;
 	uint32_t temp;
 	int cursor = 36;
 
@@ -376,6 +380,7 @@ int main(void)
 	console_setup(115200);
 	sdram_init();
 	lcd_spi_init();
+
 	console_puts("LCD Initialized\n");
 	console_puts("Should have a checker pattern, press any key to proceed\n");
 	msleep(2000);
@@ -389,7 +394,7 @@ int main(void)
 	gfx_fillCircle(220, 250, 10, LCD_BLUE);
 	gfx_setTextSize(2);
 	gfx_setCursor(15, 25);
-	gfx_puts("STM32F4-Seismograph");
+	gfx_puts("Seismograph");
 	gfx_setTextSize(1);
 	gfx_setCursor(15, 49);
 	gfx_puts("IE0624");
@@ -405,7 +410,7 @@ int main(void)
 //	p1 = 0;
 //	p2 = 45;
 //	p3 = 90;
-
+	spi_init();
 	/*Codigo tomado de funcion main() de spi-mems.c*/
 	baseline[0] = 0;
 	baseline[1] = 0;
@@ -434,8 +439,8 @@ int main(void)
 	console_puts(" C\n");
 
 	while (1) {
-		
-		/*Codigo tomado de funcion main() de spi-mems.c*/
+
+		//Codigo tomado de funcion main() de spi-mems.c
 		tmp = read_xyz(vecs);
 		for (i = 0; i < 3; i++) {
 			int pad;
